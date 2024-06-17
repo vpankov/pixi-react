@@ -130,6 +130,8 @@ class Stage extends React.Component
             renderOnComponentChange,
         } = this.props;
 
+        console.log('TEST123', 'New application');
+
         this.app = new Application({
             width,
             height,
