@@ -118,6 +118,7 @@ class Stage extends React.Component
     _ticker = null;
     _needsUpdate = true;
     app = null;
+    myRef = React.createRef();
 
     componentDidMount()
     {
@@ -128,17 +129,37 @@ class Stage extends React.Component
             options,
             raf,
             renderOnComponentChange,
+            canvasId,
         } = this.props;
 
-        console.log('TEST123', 'New application');
+        if(!window.webGLContext) {
+            window.webGLContext = {};
+        }
 
-        this.app = new Application({
-            width,
-            height,
-            view: this._canvas,
-            ...options,
-            autoDensity: options?.autoDensity !== false,
-        });
+        if(!window.webGLContext[canvasId]) {
+            window.webGLContext[canvasId] = new Application({
+                width,
+                height,
+                ...options,
+                autoDensity: options?.autoDensity !== false,
+            });
+        }
+
+        this.app = window.webGLContext[canvasId];
+
+        if(this.props.id) {
+            this.app.view.id = this.props.id;
+        }
+
+        if(this.props.width || this.props.height) {
+            this.app.renderer.resize(this.props.width || 100, this.props.height || 100);
+        }
+
+        if(this.props.resolution) {
+            this.app.renderer.resolution = this.props.resolution;
+        }
+
+        this.myRef.current.appendChild(this.app.view)
 
         if (process.env.NODE_ENV === 'development')
         {
@@ -297,18 +318,13 @@ class Stage extends React.Component
     {
         this.props.onUnmount(this.app);
 
+        const stage = this.app.stage;
+
         if (this._ticker)
         {
             this._ticker.remove(this.renderStage);
             this._ticker.destroy();
         }
-
-        this.app.stage.off(
-            '__REACT_PIXI_REQUEST_RENDER__',
-            this.needsRenderUpdate
-        );
-
-        PixiFiber.updateContainer(null, this.mountNode, this);
 
         if (this._mediaQuery)
         {
@@ -316,7 +332,9 @@ class Stage extends React.Component
             this._mediaQuery = null;
         }
 
-        this.app.destroy();
+        while (stage.children[0]) {
+          stage.removeChild(stage.children[0])
+        }
     }
 
     render()
@@ -334,10 +352,7 @@ class Stage extends React.Component
         }
 
         return (
-            <canvas
-                {...getCanvasProps(this.props)}
-                ref={(c) => (this._canvas = c)}
-            />
+            <span ref={this.myRef}></span>
         );
     }
 }

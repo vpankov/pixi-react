@@ -23622,21 +23622,6 @@ function unmountComponentAtNode(container) {
   unmountComponent(container);
 }
 
-function _extends() {
-  _extends = Object.assign ? Object.assign.bind() : function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-    return target;
-  };
-  return _extends.apply(this, arguments);
-}
-
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -23707,6 +23692,21 @@ function _getPrototypeOf(o) {
     return o.__proto__ || Object.getPrototypeOf(o);
   };
   return _getPrototypeOf(o);
+}
+
+function _extends() {
+  _extends = Object.assign ? Object.assign.bind() : function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+  return _extends.apply(this, arguments);
 }
 
 var Context = /*#__PURE__*/React.createContext(null);
@@ -23800,14 +23800,6 @@ var defaultProps = {
   raf: true,
   renderOnComponentChange: true
 };
-function getCanvasProps(props) {
-  var reserved = [].concat(_toConsumableArray(Object.keys(propTypes)), _toConsumableArray(Object.keys(PROPS_DISPLAY_OBJECT)));
-  return Object.keys(props).filter(function (p) {
-    return !reserved.includes(p);
-  }).reduce(function (all, prop) {
-    return _objectSpread$1(_objectSpread$1({}, all), {}, _defineProperty({}, prop, props[prop]));
-  }, {});
-}
 var Stage = /*#__PURE__*/function (_React$Component) {
   _inherits(Stage, _React$Component);
   var _super = _createSuper(Stage);
@@ -23823,6 +23815,7 @@ var Stage = /*#__PURE__*/function (_React$Component) {
     _defineProperty(_assertThisInitialized(_this), "_ticker", null);
     _defineProperty(_assertThisInitialized(_this), "_needsUpdate", true);
     _defineProperty(_assertThisInitialized(_this), "app", null);
+    _defineProperty(_assertThisInitialized(_this), "myRef", /*#__PURE__*/React.createRef());
     _defineProperty(_assertThisInitialized(_this), "updateSize", function () {
       var _this$props = _this.props,
         width = _this$props.width,
@@ -23857,15 +23850,49 @@ var Stage = /*#__PURE__*/function (_React$Component) {
         height = _this$props3.height,
         options = _this$props3.options,
         raf = _this$props3.raf,
-        renderOnComponentChange = _this$props3.renderOnComponentChange;
-      console.log('TEST123', 'New application');
-      this.app = new Application(_objectSpread$1(_objectSpread$1({
-        width: width,
-        height: height,
-        view: this._canvas
-      }, options), {}, {
-        autoDensity: (options === null || options === void 0 ? void 0 : options.autoDensity) !== false
-      }));
+        renderOnComponentChange = _this$props3.renderOnComponentChange,
+        canvasId = _this$props3.canvasId;
+      if (!window.webGLContext) {
+        window.webGLContext = {};
+      }
+      if (!window.webGLContext[canvasId]) {
+        window.webGLContext[canvasId] = new Application(_objectSpread$1(_objectSpread$1({
+          width: width,
+          height: height
+        }, options), {}, {
+          autoDensity: (options === null || options === void 0 ? void 0 : options.autoDensity) !== false
+        }));
+      }
+
+      // if(!canvasId) {
+      //     this.app = new Application({
+      //         width,
+      //         height,
+      //         ...options,
+      //         autoDensity: options?.autoDensity !== false,
+      //     });
+      // } else {
+      this.app = window.webGLContext[canvasId];
+      // }
+
+      // this.app = new Application({
+      //     width,
+      //     height,
+
+      //     ...options,
+      //     autoDensity: options?.autoDensity !== false,
+      // });
+
+      if (this.props.id) {
+        this.app.view.id = this.props.id;
+      }
+      if (this.props.width || this.props.height) {
+        this.app.renderer.resize(this.props.width || 100, this.props.height || 100);
+      }
+      if (this.props.resolution) {
+        this.app.renderer.resolution = this.props.resolution;
+      }
+      this.myRef.current.appendChild(this.app.view);
       {
         var _this$app$renderer$co;
         // workaround for React 18 Strict Mode unmount causing
@@ -23966,32 +23993,35 @@ var Stage = /*#__PURE__*/function (_React$Component) {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
       this.props.onUnmount(this.app);
+      var stage = this.app.stage;
       if (this._ticker) {
         this._ticker.remove(this.renderStage);
         this._ticker.destroy();
       }
-      this.app.stage.off('__REACT_PIXI_REQUEST_RENDER__', this.needsRenderUpdate);
-      PixiFiber.updateContainer(null, this.mountNode, this);
       if (this._mediaQuery) {
         this._mediaQuery.removeListener(this.updateSize);
         this._mediaQuery = null;
       }
-      this.app.destroy();
+      while (stage.children[0]) {
+        stage.removeChild(stage.children[0]);
+      }
     }
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
       var options = this.props.options;
       if (options && options.view) {
         invariant(options.view instanceof HTMLCanvasElement, 'options.view needs to be a `HTMLCanvasElement`');
         return null;
       }
-      return /*#__PURE__*/React.createElement("canvas", _extends({}, getCanvasProps(this.props), {
-        ref: function ref(c) {
-          return _this2._canvas = c;
-        }
-      }));
+      return /*#__PURE__*/React.createElement("span", {
+        ref: this.myRef
+      })
+      // <canvas
+      //     {...getCanvasProps(this.props)}
+      //     ref={(c) => (this._canvas = c)}
+      // />
+      ;
     }
   }]);
   return Stage;
