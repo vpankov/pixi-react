@@ -23865,26 +23865,7 @@ var Stage = /*#__PURE__*/function (_React$Component) {
           autoDensity: (options === null || options === void 0 ? void 0 : options.autoDensity) !== false
         }));
       }
-
-      // if(!canvasId) {
-      //     this.app = new Application({
-      //         width,
-      //         height,
-      //         ...options,
-      //         autoDensity: options?.autoDensity !== false,
-      //     });
-      // } else {
       this.app = window.webGLContext[canvasId];
-      // }
-
-      // this.app = new Application({
-      //     width,
-      //     height,
-
-      //     ...options,
-      //     autoDensity: options?.autoDensity !== false,
-      // });
-
       if (this.props.id) {
         this.app.view.id = this.props.id;
       }
@@ -24018,12 +23999,7 @@ var Stage = /*#__PURE__*/function (_React$Component) {
       }
       return /*#__PURE__*/React.createElement("span", {
         ref: this.myRef
-      })
-      // <canvas
-      //     {...getCanvasProps(this.props)}
-      //     ref={(c) => (this._canvas = c)}
-      // />
-      ;
+      });
     }
   }]);
   return Stage;
