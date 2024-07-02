@@ -23078,6 +23078,9 @@ var devDependencies = {
 	"ts-node": "^10.9.1",
 	typescript: "^4.9.4"
 };
+var publishConfig = {
+	"@vpankov:registry": "https://npm.pkg.github.com"
+};
 var pkg = {
 	name: name,
 	"private": true,
@@ -23091,7 +23094,8 @@ var pkg = {
 },
 	resolutions: resolutions,
 	dependencies: dependencies,
-	devDependencies: devDependencies
+	devDependencies: devDependencies,
+	publishConfig: publishConfig
 };
 
 var performanceNowExports = {};
@@ -23864,11 +23868,17 @@ var Stage = /*#__PURE__*/function (_React$Component) {
         }, options), {}, {
           autoDensity: (options === null || options === void 0 ? void 0 : options.autoDensity) !== false
         }));
+      } else {
+        var stage = window.webGLContext[canvasId].stage;
+        while (stage.children[0]) {
+          stage.removeChild(stage.children[0]);
+        }
       }
       this.app = window.webGLContext[canvasId];
       if (this.props.id) {
         this.app.view.id = this.props.id;
       }
+      console.log('TEST123', this.props.style);
       if (this.props.style) {
         Object.assign(this.app.view.style, this.props.style);
       }
@@ -23979,6 +23989,8 @@ var Stage = /*#__PURE__*/function (_React$Component) {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
       this.props.onUnmount(this.app);
+      this.app.view.removeAttribute("style");
+      this.app.view.removeAttribute("id");
       var stage = this.app.stage;
       if (this._ticker) {
         this._ticker.remove(this.renderStage);
@@ -24010,14 +24022,6 @@ var Stage = /*#__PURE__*/function (_React$Component) {
 Stage.propTypes = propTypes;
 Stage.defaultProps = defaultProps;
 var Stage$1 = Stage;
-
-// const camelToKebabCase = str => str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
-
-// const applyStyles = (element, styles) => {
-//     for (var key in obj) {
-//         element
-//     }
-// }
 
 function useApp() {
   var app$1 = React.useContext(Context);
