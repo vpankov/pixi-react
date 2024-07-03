@@ -23076,9 +23076,6 @@ var devDependencies = {
 	"ts-node": "^10.9.1",
 	typescript: "^4.9.4"
 };
-var publishConfig = {
-	"@vpankov:registry": "https://npm.pkg.github.com"
-};
 var pkg = {
 	name: name,
 	"private": true,
@@ -23092,8 +23089,7 @@ var pkg = {
 },
 	resolutions: resolutions,
 	dependencies: dependencies,
-	devDependencies: devDependencies,
-	publishConfig: publishConfig
+	devDependencies: devDependencies
 };
 
 var performanceNowExports = {};
@@ -23876,7 +23872,6 @@ var Stage = /*#__PURE__*/function (_React$Component) {
       if (this.props.id) {
         this.app.view.id = this.props.id;
       }
-      console.log('TEST123', this.props.style);
       if (this.props.style) {
         Object.assign(this.app.view.style, this.props.style);
       }
